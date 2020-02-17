@@ -37,8 +37,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  urlDatabase[generateRandomString()] = req.body.longURL;
   console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect('/urls');
 });
 
 function generateRandomString() {
@@ -48,10 +49,7 @@ function generateRandomString() {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return result;
- }
- 
- console.log(makeid(5));
-}
+};
 
 // app.get("/hello", (req, res) => {
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
