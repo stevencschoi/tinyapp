@@ -32,12 +32,18 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render('urls_new', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
@@ -47,14 +53,16 @@ app.get('/u/:shortURL', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]
+    username: req.cookies["username"], 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL]
   };
   res.render('urls_show', templateVars);
 });
 
 app.post('/urls', (req, res) => {
   urlDatabase[generateRandomString()] = req.body.longURL;
-  console.log(req.body);  // Log the POST request body to the console
+  // console.log(req.body);  // Log the POST request body to the console
   res.redirect('/urls');
 });
 
