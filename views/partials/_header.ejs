@@ -17,22 +17,24 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <!-- if user is logged in, display username; else display log in form -->
-        <% if (user_id) { %>
-          <a class="nav-item nav-link">Logged in as: <%= user_id.email %></a>
-          <form method="POST" action="/logout">
-            <button class="log button">Logout</button>
-          </form>
-        <% } else { %>
-          <form method="POST" action="/login">
-            <input
-              type="text"
-              name="email"
-              placeholder="email"
-            >
-            <button class="log button">Login</button>
-          </form>
-        <% } %>
       </div>
     </div>
+    <% if (user_id) { %>
+      <a class="nav-item nav-link">Logged in as: <%= user_id.email %></a>
+      <form method="POST" action="/logout">
+        <button class="log button">Logout</button>
+      </form>
+    <% } else { %>
+      <a class="nav-item nav-link" href="/login">Login</a>
+      <a class="nav-item nav-link" href="/register">Register</a>
+      <!-- <form method="POST" action="/login">
+        <input
+          type="text"
+          name="email"
+          placeholder="email"
+        >
+        <button class="log button">Login</button>
+      </form> -->
+    <% } %>
   </nav>
 </header>
