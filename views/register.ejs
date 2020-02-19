@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>Login - Tiny App Example</title>
+</head>
+<body>
+  <header>
+    <%- include('./partials/_header') %>
+  </header>
+  <main style="margin: 1em;">
+    <form
+      method="POST" 
+      action="/register"
+      >
+      <input type="email" name="email" aria-label="Email">
+      <input type="password" name="password">
+      <button type="submit">Login</button>
+    </form>
+  </main>
+</body>
+</html>

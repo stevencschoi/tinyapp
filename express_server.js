@@ -14,6 +14,19 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
 // string generator for 6 character URL
 const generateRandomString = () => {
   let result = '';
@@ -24,8 +37,16 @@ const generateRandomString = () => {
   return result;
 };
 
+// const lookupEmail = () => {
+
+// };
+
 app.get('/', (req, res) => {
   res.send('Hello!');
+});
+
+app.get('/register', (req, res) => {
+  res.render('register');
 });
 
 app.get('/urls.json', (req, res) => {
@@ -77,6 +98,22 @@ app.post('/urls/:shortURL', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+});
+
+app.post('/register', (req, res) => {
+  // create user ID & store user info
+  if (req.body.email === "" || req.body.password === "") {
+    // return response 400
+  } else {
+    users[generateRandomString()] = {
+      id: req.body.id,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', req.body.id);
+  }
+  console.log(users);
   res.redirect('/urls');
 });
 
