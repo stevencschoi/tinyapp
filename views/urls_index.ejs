@@ -5,6 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>Tiny App</title>
+  <style>
+    .button {
+      background-color: transparent;
+      color: black;
+      border-radius: 10%;
+      border: 1px solid black;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .log:hover {
+      border: 1px solid white;
+      color: white
+    }
+
+    .delete:hover {
+      border: 1px solid red;
+      color: red;
+    }
+
+    </style>
 </head>
 <body>
   <header>
@@ -36,7 +57,7 @@
               <form
                 method="POST"
                 action="/urls/<%= url %>/delete">
-                <button>Delete</button>
+                <button class="delete button">Delete</button>
               </form>
             </td>
           </tr>

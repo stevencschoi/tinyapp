@@ -18,9 +18,9 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <!-- if user is logged in, display username; else display log in form -->
         <% if (username) { %>
-          <a>Logged in as <%= username %></a>
+          <a class="nav-item nav-link">Logged in as: <%= username %></a>
           <form method="POST" action="/logout">
-            <button>Logout</button>
+            <button class="log button">Logout</button>
           </form>
         <% } else { %>
           <form method="POST" action="/login">
@@ -29,7 +29,7 @@
               name="username"
               placeholder="username"
             >
-            <button>Login</button>
+            <button class="log button">Login</button>
           </form>
         <% } %>
       </div>
