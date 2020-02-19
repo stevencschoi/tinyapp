@@ -46,7 +46,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('register');
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render('register', templateVars);
 });
 
 app.get('/urls.json', (req, res) => {
@@ -105,13 +108,16 @@ app.post('/register', (req, res) => {
   // create user ID & store user info
   if (req.body.email === "" || req.body.password === "") {
     // return response 400
+    res.statusCode = 400;
+    res.send(res.statusCode);
   } else {
-    users[generateRandomString()] = {
-      id: req.body.id,
+    const user_id = generateRandomString();
+    users[user_id] = {
+      id: user_id,
       email: req.body.email,
       password: req.body.password
     };
-    res.cookie('user_id', req.body.id);
+    res.cookie('user_id', user_id);
   }
   console.log(users);
   res.redirect('/urls');
