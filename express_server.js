@@ -14,6 +14,7 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
+// string generator for 6 character URL
 const generateRandomString = () => {
   let result = '';
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -32,6 +33,7 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
+  // list formatted urls in database
   const templateVars = {
     urls: urlDatabase,
     username: req.cookies["username"]
@@ -40,6 +42,7 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+  // get request, post command in rendered form
   const templateVars = {
     username: req.cookies["username"]
   };
@@ -53,39 +56,38 @@ app.get('/u/:shortURL', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
-    username: req.cookies["username"], 
-    shortURL: req.params.shortURL, 
+    username: req.cookies["username"],
+    shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
   res.render('urls_show', templateVars);
 });
 
 app.post('/urls', (req, res) => {
+  // generate key value pair for user input longURL
   urlDatabase[generateRandomString()] = req.body.longURL;
-  // console.log(req.body);  // Log the POST request body to the console
   res.redirect('/urls');
 });
 
 app.post('/urls/:shortURL', (req, res) => {
-  console.log(req.params);
+  // update longURL in database with user input
   urlDatabase[req.params.shortURL] = req.body.longURL;
-  // update urlDatabase[req.params.shortURL];
-  // res.redirect(`/urls/${req.params.shortURL}`);
   res.redirect('/urls');
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  // console.log(req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
 app.post('/login', (req, res) => {
+  // store cookies when logging in
   res.cookie('username', req.body.username);
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
+  // clear cookies upon logging out
   res.clearCookie('username');
   res.redirect('/urls');
 });
