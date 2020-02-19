@@ -37,9 +37,17 @@ const generateRandomString = () => {
   return result;
 };
 
-// const lookupEmail = () => {
-
-// };
+const verifyEmail = (email) => {
+  // loop through the users object
+  // verify if email input already exists
+  // users.KEY.email.value
+  for (const key of Object.keys(users)) {
+    console.log("this is the email", users[key].email);
+    if (users[key].email === email) {
+      return true;
+    }
+  }
+};
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -106,7 +114,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/register', (req, res) => {
   // create user ID & store user info
-  if (req.body.email === "" || req.body.password === "") {
+  // conditionals if user exists or empty strings entered
+  if (req.body.email === "" || req.body.password === "" || verifyEmail(req.body.email) === true) {
     // return response 400
     res.statusCode = 400;
     res.send(res.statusCode);
@@ -117,6 +126,7 @@ app.post('/register', (req, res) => {
       email: req.body.email,
       password: req.body.password
     };
+    console.log(`verify email: ${verifyEmail(req.body.email)}`);
     res.cookie('user_id', user_id);
   }
   console.log(users);
