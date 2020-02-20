@@ -44,7 +44,7 @@
         <!-- loop through database and create HTML elements for each item -->
         <% for(let url in urls) { %>
           <tr>
-            <td><%= url %></td>
+            <td><a href="/u/<%= url %>"><%= url %></a></td>
             <td><%= urls[url] %></td>
             <td>
               <form 
