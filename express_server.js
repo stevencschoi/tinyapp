@@ -9,9 +9,14 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 
+// const urlDatabase = {
+//   'b2xVn2': 'http://www.lighthouselabs.ca',
+//   '9sm5xK': 'http://www.google.com'
+// };
+
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "uKN1o0" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "5DcphW" }
 };
 
 const users = {
@@ -47,6 +52,17 @@ const getUserByEmail = email => {
     }
   }
   return false;
+};
+
+// create user url database
+const urlsForUser = id => {
+  let userURLDatabase = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      userURLDatabase[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+  return userURLDatabase;
 };
 
 // const verifyEmail = email => {
@@ -141,26 +157,39 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  // list formatted urls in database
-  const templateVars = {
-    urls: urlDatabase,
-    userId: req.cookies["userId"]
-  };
-  res.render('urls_index', templateVars);
+  console.log(req.cookies.userId.id);
+  console.log(urlsForUser(req.cookies.userId.id));
+  if (req.cookies.userId) {
+    const templateVars = {
+      urls: urlsForUser(req.cookies.userId.id),
+      userId: req.cookies["userId"]
+    };
+    res.render('urls_index', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.post('/urls', (req, res) => {
   // generate key value pair for user input longURL
-  urlDatabase[generateRandomString()] = req.body.longURL;
+  urlDatabase[generateRandomString()] = { 
+    longURL: req.body.longURL,
+    userID: req.cookies.userId.id
+  };
   res.redirect('/urls');
 });
 
 app.get('/urls/new', (req, res) => {
+  if (req.cookies.userId) {
+    const templateVars = {
+      userId: req.cookies["userId"]
+    };
+    res.render('urls_new', templateVars);
+  } else {
+    // if not logged in, redirect to login page
+    res.redirect('/login');
+  }
   // get request, post command in rendered form
-  const templateVars = {
-    userId: req.cookies["userId"]
-  };
-  res.render('urls_new', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
