@@ -15,8 +15,8 @@ app.use(morgan('dev'));
 // };
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "uKN1o0" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "5DcphW" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
@@ -54,28 +54,6 @@ const getUserByEmail = email => {
   return false;
 };
 
-// create user url database
-const urlsForUser = id => {
-  let userDatabase = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userDatabase[url] = urlDatabase[url].longURL;
-    }
-  }
-  console.log(userDatabase);
-  return userDatabase;
-};
-
-// const verifyEmail = email => {
-//   // loop through the users object
-//   for (const key of Object.keys(users)) {
-//     if (users[key].email === email) {
-//       console.log("getUserByEmail: ", users[key]);
-//       return true;
-//     }
-//   }
-// };
-
 // check inputted email to existing user object email
 const verifyEmail = email => {
   let user = getUserByEmail(email);
@@ -100,6 +78,19 @@ const verifyPassword = (email, password) => {
       return false;
     }
   }
+};
+
+// create user url database
+const urlsForUser = id => {
+  let userDatabase = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userDatabase[url] = urlDatabase[url].longURL;
+    }
+  }
+  console.log("The user created database", userDatabase);
+  console.log("This is the URL database", urlDatabase);
+  return userDatabase;
 };
 
 app.get('/', (req, res) => {
@@ -215,8 +206,14 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  // will probably require a function to validate
+  if (req.cookies.userId.id === urlDatabase[thing]) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.statusCode = 403;
+    res.send(res.statusCode);
+  }
 });
 
 app.post('/logout', (req, res) => {
