@@ -88,10 +88,19 @@ const urlsForUser = id => {
       userDatabase[url] = urlDatabase[url].longURL;
     }
   }
-  console.log("The user created database", userDatabase);
+  // console.log("The user created database", userDatabase);
   console.log("This is the URL database", urlDatabase);
   return userDatabase;
 };
+
+// retrieve nested ID in database
+// const printId(obj) {
+//   if (obj.userID) {
+//     return obj.userID;
+//   } else for (key in obj) {
+//     printId(obj[key]);
+//   }
+// };
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -157,6 +166,7 @@ app.get('/urls', (req, res) => {
       urls: urlsForUser(req.cookies.userId.id),
       userId: req.cookies["userId"]
     };
+    console.log(req.cookies.userId);
     res.render('urls_index', templateVars);
   } else {
     res.redirect('/login');
@@ -199,14 +209,22 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.post('/urls/:shortURL', (req, res) => {
+app.post('/urls/:shortURL/update', (req, res) => {
+  console.log(req.body);
   // update longURL in database with user input
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  const templateVars = {
+    userId: req.cookies["userId"],
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL]
+  };
+  console.log("Before update:", urlDatabase[req.params.shortURL]);
+  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+  console.log("After update", urlDatabase[req.params.shortURL]);
   res.redirect('/urls');
 });
 
+// requires attention!!!!! FIX THIS!
 app.post('/urls/:shortURL/delete', (req, res) => {
-  // will probably require a function to validate
   if (req.cookies.userId.id === urlDatabase[thing]) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
