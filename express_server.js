@@ -145,8 +145,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email);
   if (!verifyPassword(req.body.email, req.body.password)) {
-    res.statusCode = 403;
-    res.send(res.statusCode);
+    res.status(403).send('Forbidden');
   } else {
     res.cookie('userId', user);
     res.redirect('/urls');
@@ -166,7 +165,7 @@ app.get('/urls', (req, res) => {
       urls: urlsForUser(req.cookies.userId.id),
       userId: req.cookies["userId"]
     };
-    console.log(req.cookies.userId);
+    // console.log(req.cookies.userId);
     res.render('urls_index', templateVars);
   } else {
     res.redirect('/login');
@@ -210,27 +209,31 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   // update longURL in database with user input
   const templateVars = {
     userId: req.cookies["userId"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  console.log("Before update:", urlDatabase[req.params.shortURL]);
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
-  console.log("After update", urlDatabase[req.params.shortURL]);
-  res.redirect('/urls');
+  console.log("Cookies: ", req.cookies);
+  console.log("urlDatabase", urlDatabase);
+  if (req.cookies.userId.id === urlDatabase[req.params.shortURL].userID) {
+    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+    res.redirect('/urls');
+  } else {
+    res.status(403).send('Forbidden');
+  }
 });
 
-// requires attention!!!!! FIX THIS!
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (req.cookies.userId.id === urlDatabase[thing]) {
+  console.log("Cookies: ", req.cookies);
+  console.log("urlDatabase", urlDatabase);
+  if (urlDatabase[req.params.shortURL] && req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
-    res.statusCode = 403;
-    res.send(res.statusCode);
+    res.status(403).send('Forbidden');
   }
 });
 
