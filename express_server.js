@@ -47,7 +47,7 @@ const getUserByEmail = email => {
   // loop through the users object
   for (const key of Object.keys(users)) {
     if (users[key].email === email) {
-      console.log("getUserByEmail: ", users[key]);
+      // console.log("getUserByEmail: ", users[key]);
       return users[key];
     }
   }
@@ -56,13 +56,13 @@ const getUserByEmail = email => {
 
 // create user url database
 const urlsForUser = id => {
-  let userURLDatabase = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      userURLDatabase[shortURL] = urlDatabase[shortURL].longURL;
+  let userDatabase = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userDatabase[url] = urlDatabase[url].longURL;
     }
   }
-  return userURLDatabase;
+  return userDatabase;
 };
 
 // const verifyEmail = email => {
@@ -157,8 +157,8 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  console.log(req.cookies.userId.id);
-  console.log(urlsForUser(req.cookies.userId.id));
+  // console.log(req.cookies.userId.id);
+  // console.log(urlsForUser(req.cookies.userId.id));
   if (req.cookies.userId) {
     const templateVars = {
       urls: urlsForUser(req.cookies.userId.id),
