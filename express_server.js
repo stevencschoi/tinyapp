@@ -59,6 +59,7 @@ const getUserByEmail = email => {
 //   }
 // };
 
+// check inputted email to existing user object email
 const verifyEmail = email => {
   let user = getUserByEmail(email);
   if (!user) {
@@ -70,6 +71,7 @@ const verifyEmail = email => {
   }
 };
 
+// check inputted password with user object password
 const verifyPassword = (email, password) => {
   const user = getUserByEmail(email);
   if (!user) {
