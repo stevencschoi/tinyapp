@@ -17,13 +17,20 @@ const testUsers = {
 
 describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = getUserByEmail("user@example.com", testUsers)
+    const user = getUserByEmail("user@example.com", testUsers);
     const expectedOutput = "userRandomID";
     // Write your assert statement here
-    assert.deepEqual(getUserByEmail("user@example.com", testUsers), {
-      id: "userRandomID", 
-      email: "user@example.com", 
-      password: "purple-monkey-dinosaur"
-    });
+    // assert.deepEqual(getUserByEmail("user@example.com", testUsers), {
+    //   id: "userRandomID", 
+    //   email: "user@example.com", 
+    //   password: "purple-monkey-dinosaur"
+    // });
+    assert.equal(user.id, expectedOutput);
+  });
+
+  it('should return undefined if a non-existent email is entered', function() {
+    const user = getUserByEmail("doesnotexist@email.com", testUsers);
+    const expectedOutput = undefined;
+    assert.equal(user.email, expectedOutput);
   });
 });
