@@ -62,6 +62,7 @@ const urlsForUser = id => {
       userDatabase[url] = urlDatabase[url].longURL;
     }
   }
+  console.log(userDatabase);
   return userDatabase;
 };
 
@@ -161,6 +162,7 @@ app.get('/urls', (req, res) => {
   // console.log(urlsForUser(req.cookies.userId.id));
   if (req.cookies.userId) {
     const templateVars = {
+      // display url database if user is logged in (verified with presence of cookies)
       urls: urlsForUser(req.cookies.userId.id),
       userId: req.cookies["userId"]
     };
@@ -193,7 +195,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
