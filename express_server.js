@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
+const bcrypt = require('bcrypt');
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 
@@ -73,6 +74,7 @@ const verifyPassword = (email, password) => {
     return false;
   } else {
     if (password === user.password) {
+    // if (bcrypt.compareSync(password, hashedPassword));
       return true;
     } else {
       return false;
@@ -119,14 +121,15 @@ app.post('/register', (req, res) => {
   // conditionals if user exists or empty strings entered
   if (req.body.email === "" || req.body.password === "" || verifyEmail(req.body.email) === true) {
     // return response 400
-    res.statusCode = 400;
-    res.send(res.statusCode);
+    res.send(res.statusCode = 400);
   } else {
     const userId = generateRandomString();
+    let hashPassword = bcrypt.hashSync(req.body.password, 10)
     users[userId] = {
       id: userId,
       email: req.body.email,
-      password: req.body.password
+      password: hashPassword
+      // password: req.body.password
     };
     // console.log(users);
     res.cookie('userId', users[userId]);
@@ -144,7 +147,8 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email);
-  if (!verifyPassword(req.body.email, req.body.password)) {
+  if (bcrypt.compareSync(req.body.password, user.password) === false) {
+  // if (!verifyPassword(req.body.email, req.body.password)) {
     res.status(403).send('Forbidden');
   } else {
     res.cookie('userId', user);
@@ -157,7 +161,7 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  // console.log(req.cookies.userId.id);
+  console.log("Cookies:", req.cookies);
   // console.log(urlsForUser(req.cookies.userId.id));
   if (req.cookies.userId) {
     const templateVars = {
@@ -206,11 +210,16 @@ app.get('/urls/:shortURL', (req, res) => {
     longURL: urlDatabase[req.params.shortURL]
   };
   res.render('urls_show', templateVars);
+  // if (req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
+  // res.render('urls_show', templateVars);
+  // } else if (req.cookies.userId && req.cookies.userId.id !== urlDatabase[req.params.shortURL].userID) {
+  //   res.status(403).send('This page does not belong to you.');
+  // } else if (!req.cookies.userId) {
+  //   res.send('Please log in to view page.')
+  // }
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
-  // console.log(req.body);
-  // update longURL in database with user input
   const templateVars = {
     userId: req.cookies["userId"],
     shortURL: req.params.shortURL,
