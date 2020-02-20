@@ -4,8 +4,11 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'userId',
+  keys: ['strings']
+}));
 const bcrypt = require('bcrypt');
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
@@ -111,7 +114,7 @@ app.get('/', (req, res) => {
 
 app.get('/register', (req, res) => {
   const templateVars = {
-    userId: req.cookies["userId"]
+    userId: req.session["userId"]
   };
   res.render('register', templateVars);
 });
@@ -132,7 +135,7 @@ app.post('/register', (req, res) => {
       // password: req.body.password
     };
     // console.log(users);
-    res.cookie('userId', users[userId]);
+    req.session.userId = users[userId];
   }
   // console.log(users);
   res.redirect('/urls');
@@ -140,7 +143,7 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   const templateVars = {
-    userId: req.cookies["userId"]
+    userId: req.session["userId"]
   };
   res.render('login', templateVars);
 });
@@ -151,7 +154,7 @@ app.post('/login', (req, res) => {
   // if (!verifyPassword(req.body.email, req.body.password)) {
     res.status(403).send('Forbidden');
   } else {
-    res.cookie('userId', user);
+    req.session.userId = user.id;
     res.redirect('/urls');
   }
 });
@@ -161,15 +164,15 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  console.log("Cookies:", req.cookies);
-  // console.log(urlsForUser(req.cookies.userId.id));
-  if (req.cookies.userId) {
+  console.log("Cookies:", req.session);
+  // console.log(urlsForUser(req.session.userId.id));
+  if (req.session.userId) {
     const templateVars = {
       // display url database if user is logged in (verified with presence of cookies)
-      urls: urlsForUser(req.cookies.userId.id),
-      userId: req.cookies["userId"]
+      urls: urlsForUser(req.session.userId.id),
+      userId: req.session["userId"]
     };
-    // console.log(req.cookies.userId);
+    // console.log(req.session.userId);
     res.render('urls_index', templateVars);
   } else {
     res.redirect('/login');
@@ -180,15 +183,15 @@ app.post('/urls', (req, res) => {
   // generate key value pair for user input longURL
   urlDatabase[generateRandomString()] = { 
     longURL: req.body.longURL,
-    userID: req.cookies.userId.id
+    userID: req.session.userId.id
   };
   res.redirect('/urls');
 });
 
 app.get('/urls/new', (req, res) => {
-  if (req.cookies.userId) {
+  if (req.session.userId) {
     const templateVars = {
-      userId: req.cookies["userId"]
+      userId: req.session["userId"]
     };
     res.render('urls_new', templateVars);
   } else {
@@ -205,29 +208,29 @@ app.get('/u/:shortURL', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
-    userId: req.cookies["userId"],
+    userId: req.session["userId"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
   res.render('urls_show', templateVars);
-  // if (req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
+  // if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
   // res.render('urls_show', templateVars);
-  // } else if (req.cookies.userId && req.cookies.userId.id !== urlDatabase[req.params.shortURL].userID) {
+  // } else if (req.session.userId && req.session.userId.id !== urlDatabase[req.params.shortURL].userID) {
   //   res.status(403).send('This page does not belong to you.');
-  // } else if (!req.cookies.userId) {
+  // } else if (!req.session.userId) {
   //   res.send('Please log in to view page.')
   // }
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
   const templateVars = {
-    userId: req.cookies["userId"],
+    userId: req.session["userId"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  console.log("Cookies: ", req.cookies);
+  console.log("Cookies: ", req.session);
   console.log("urlDatabase", urlDatabase);
-  if (req.cookies.userId.id === urlDatabase[req.params.shortURL].userID) {
+  if (req.session.userId.id === urlDatabase[req.params.shortURL].userID) {
     urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect('/urls');
   } else {
