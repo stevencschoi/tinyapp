@@ -201,7 +201,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/logout', (req, res) => {
   // clear cookies upon logging out
-  res.clearCookie('userId');
+  // res.clearCookie('userId');
+  req.session = null;
   res.redirect('/login');
 });
 
