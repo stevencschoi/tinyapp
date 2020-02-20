@@ -19,8 +19,8 @@
         <!-- if user is logged in, display username; else display log in form -->
       </div>
     </div>
-    <% if (user_id) { %>
-      <a class="nav-item nav-link">Logged in as: <%= user_id.email %></a>
+    <% if (userId) { %>
+      <a class="nav-item nav-link">Logged in as: <%= userId.email %></a>
       <form method="POST" action="/logout">
         <button class="log button">Logout</button>
       </form>
