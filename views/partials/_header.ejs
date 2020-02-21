@@ -19,22 +19,14 @@
         <!-- if user is logged in, display username; else display log in form -->
       </div>
     </div>
-    <% if (userId) { %>
-      <a class="nav-item nav-link">Logged in as: <%= userId.email %></a>
+    <% if (user) { %>
+      <a class="nav-item nav-link">Logged in as: <%= user.email %></a>
       <form method="POST" action="/logout">
         <button class="log button">Logout</button>
       </form>
     <% } else { %>
       <a class="nav-item nav-link" href="/login">Login</a>
       <a class="nav-item nav-link" href="/register">Register</a>
-      <!-- <form method="POST" action="/login">
-        <input
-          type="text"
-          name="email"
-          placeholder="email"
-        >
-        <button class="log button">Login</button>
-      </form> -->
     <% } %>
   </nav>
 </header>

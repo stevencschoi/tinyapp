@@ -92,7 +92,9 @@ app.get('/', (req, res) => {
 
 app.get('/register', (req, res) => {
   const templateVars = {
-    userId: req.session["userId"]
+    user: users[req.session.userId],
+    email: req.body.email,
+    userId: req.session.userId
   };
   res.render('register', templateVars);
 });
@@ -101,9 +103,11 @@ app.post('/register', (req, res) => {
   // create & store user info
   // conditionals if user exists or empty strings entered
   if (req.body.email === "" || req.body.password === "" || verifyEmail(req.body.email, users) === true) {
-    res.send(res.statusCode = 400);
+    res.status(400).send('Bad request');
   } else {
+    // create user object and add to database
     const userId = generateRandomString();
+    // encrypt password
     const hashPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = {
       id: userId,
@@ -111,6 +115,7 @@ app.post('/register', (req, res) => {
       password: hashPassword
       // password: req.body.password
     };
+    // store only the userId as cookie for security purposes
     req.session.userId = userId;
   }
   res.redirect('/urls');
@@ -118,7 +123,8 @@ app.post('/register', (req, res) => {
 
 app.get('/login', (req, res) => {
   const templateVars = {
-    userId: req.session["userId"]
+    userId: req.session["userId"],
+    user: users[req.session.userId],
   };
   res.render('login', templateVars);
 });
@@ -143,6 +149,7 @@ app.get('/urls', (req, res) => {
   if (req.session.userId) {
     const templateVars = {
       // display url database if user is logged in (verified with presence of cookies)
+      user: users[req.session.userId],
       urls: urlsForUser(req.session.userId),
       userId: req.session["userId"]
     };
@@ -168,6 +175,7 @@ app.post('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
   if (req.session.userId) {
     const templateVars = {
+      user: users[req.session.userId],
       userId: req.session["userId"]
     };
     res.render('urls_new', templateVars);
@@ -179,6 +187,11 @@ app.get('/urls/new', (req, res) => {
 
 // redirect to long URL if accessing short URL
 app.get('/u/:shortURL', (req, res) => {
+  // check if url exists
+  if (!urlDatabase[req.params.shortURL]) { 
+    return res.status(404).send('Page not found');
+  }
+
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
@@ -187,28 +200,19 @@ app.get('/u/:shortURL', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     userId: req.session["userId"],
+    user: users[req.session.userId],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  
-  // if (urlDatabase[req.params.shortURL] && req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
-  //   res.render('urls_show', templateVars);
-  // } else if (req.cookies.userId) {
-  //   res.status(403).send('You are not authorized to view this page');
-  // } else {
-  //   res.status(401).send('Please log in to view this page');
-  // }
-  console.log(req.params.shortURL);
-  console.log("User ID from cookie", req.session.userId);
-  console.log("from Database", urlDatabase[req.params.shortURL].userID);
-  if (req.params.shortURL) {
-    if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
-      res.render('urls_show', templateVars);
-    } else {
-      res.status(403).send('You are not authorized to view this page');
-    }
+
+  if (!urlDatabase[req.params.shortURL]) { 
+    return res.status(404).send('Page not found');
+  }
+
+  if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
+    res.render('urls_show', templateVars);
   } else {
-    res.status(404).send('Page not found');
+    res.status(403).send('You are not authorized to view this page');
   }
 });
 
@@ -227,11 +231,10 @@ app.post('/urls/:shortURL/update', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  // delete url record if user ID matches associated ID on url
   if (!urlDatabase[req.params.shortURL]) { 
     return res.status(404).send('Page not found');
   }
-
+  // delete url record if user ID matches associated ID on url
   if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
