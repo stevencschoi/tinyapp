@@ -144,12 +144,14 @@ app.get('/urls', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  // generate key value pair for user input longURL
-  urlDatabase[generateRandomString()] = {
+  // generate identifier for urlDatabase
+  const userCode = generateRandomString();
+  urlDatabase[userCode] = {
     longURL: req.body.longURL,
     userID: req.session.userId
   };
-  res.redirect('/urls/');
+  // use urlDatabase identifier to redirect to new page
+  res.redirect(`/urls/${userCode}`);
 });
 
 // redirects to form to create url if logged in
