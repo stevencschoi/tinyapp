@@ -6,9 +6,9 @@ Users will be able to log in and execute the major functions of CRUD, while prot
 
 ## Final Product
 
-!["main page upon log in"](./docs/urls-page.png)
-!["add new url page"](./docs/create-url.png)
-!["update existing url page"](./docs/update-url.png)
+!["main page upon log in"](https://github.com/stevencschoi/tinyapp/blob/master/docs/urls-page.png)
+!["add new url page"](https://github.com/stevencschoi/tinyapp/blob/master/docs/create-url.png)
+!["update existing url page"](https://github.com/stevencschoi/tinyapp/blob/master/docs/update-url.png)
 
 ## Dependencies
 
