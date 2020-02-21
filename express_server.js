@@ -111,6 +111,10 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   // return user from database
   const user = getUserByEmail(req.body.email, users);
+  // if email is not in database, return 400
+  if (!verifyEmail(req.body.email)) {
+    return res.status(400).send('Bad response');
+  }
   // verify password and direct accordingly
   if (!bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send('Forbidden');
@@ -145,7 +149,7 @@ app.post('/urls', (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.userId
   };
-  res.redirect('/urls');
+  res.redirect('/urls/');
 });
 
 // redirects to form to create url if logged in
