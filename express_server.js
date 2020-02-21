@@ -190,7 +190,7 @@ app.get('/urls/new', (req, res) => {
 // redirect to long URL if accessing short URL
 app.get('/u/:shortURL', (req, res) => {
   // check if url exists
-  if (!urlDatabase[req.params.shortURL]) { 
+  if (!urlDatabase[req.params.shortURL]) {
     return res.status(404).send('Page not found');
   }
 
@@ -207,7 +207,7 @@ app.get('/urls/:shortURL', (req, res) => {
     longURL: urlDatabase[req.params.shortURL]
   };
 
-  if (!urlDatabase[req.params.shortURL]) { 
+  if (!urlDatabase[req.params.shortURL]) {
     return res.status(404).send('Page not found');
   }
 
@@ -233,7 +233,7 @@ app.post('/urls/:shortURL/update', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (!urlDatabase[req.params.shortURL]) { 
+  if (!urlDatabase[req.params.shortURL]) {
     return res.status(404).send('Page not found');
   }
   // delete url record if user ID matches associated ID on url
