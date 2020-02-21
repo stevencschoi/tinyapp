@@ -1,3 +1,13 @@
+// string generator for 6 character URL
+const generateRandomString = () => {
+  let result = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 // return object from user input
 const getUserByEmail = (email, users) => {
   // loop through the users object
@@ -10,5 +20,6 @@ const getUserByEmail = (email, users) => {
 };
 
 module.exports = {
-  getUserByEmail
+  generateRandomString,
+  getUserByEmail,
 }

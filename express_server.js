@@ -13,6 +13,7 @@ const bcrypt = require('bcrypt');
 app.set('view engine', 'ejs');
 app.use(morgan('dev'));
 
+const { generateRandomString } = require('./helpers.js');
 const { getUserByEmail } = require('./helpers.js');
 
 const urlDatabase = {
@@ -33,16 +34,6 @@ const users = {
   }
 };
 
-// string generator for 6 character URL
-const generateRandomString = () => {
-  let result = '';
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
 // check inputted email to existing user object email
 const verifyEmail = email => {
   let user = getUserByEmail(email, users);
@@ -54,20 +45,6 @@ const verifyEmail = email => {
     }
   }
 };
-
-// check inputted password with user object password
-// const verifyPassword = (email, password) => {
-//   const user = getUserByEmail(email);
-//   if (!user) {
-//     return false;
-//   } else {
-//     if (password === user.password) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   }
-// };
 
 // create filtered user url database
 const urlsForUser = id => {
@@ -103,9 +80,9 @@ app.post('/register', (req, res) => {
   // create & store user info
   // conditionals if user exists or empty strings entered
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send('Bad request');
+    return res.status(400).send('Bad request');
   } else if (verifyEmail(req.body.email, users)) {
-    res.status(401).send('This account already exists');
+    return res.status(401).send('This account already exists');
   } else {
     // create user object and add to database
     const userId = generateRandomString();
@@ -136,7 +113,7 @@ app.post('/login', (req, res) => {
   const user = getUserByEmail(req.body.email, users);
   // verify password and direct accordingly
   if (!bcrypt.compareSync(req.body.password, user.password)) {
-    res.status(403).send('Forbidden');
+    return res.status(403).send('Forbidden');
   } else {
     req.session.userId = user.id;
     res.redirect('/urls');
@@ -155,7 +132,7 @@ app.get('/urls', (req, res) => {
       urls: urlsForUser(req.session.userId),
       userId: req.session["userId"]
     };
-    res.render('urls_index', templateVars);
+    return res.render('urls_index', templateVars);
   } else {
     // made a decision that a redirect to the login page is functionally more useful than an expected error message to the user to log in
     res.redirect('/login');
@@ -168,8 +145,6 @@ app.post('/urls', (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.userId
   };
-  console.log(urlDatabase);
-  console.log(req.session);
   res.redirect('/urls');
 });
 
@@ -180,7 +155,7 @@ app.get('/urls/new', (req, res) => {
       user: users[req.session.userId],
       userId: req.session["userId"]
     };
-    res.render('urls_new', templateVars);
+    return res.render('urls_new', templateVars);
   } else {
     // if not logged in, redirect to login page
     res.redirect('/login');
@@ -212,7 +187,7 @@ app.get('/urls/:shortURL', (req, res) => {
   }
 
   if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
-    res.render('urls_show', templateVars);
+    return res.render('urls_show', templateVars);
   } else {
     res.status(403).send('You are not authorized to view this page');
   }
