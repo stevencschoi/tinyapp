@@ -69,10 +69,11 @@ const verifyEmail = email => {
 //   }
 // };
 
-// create user url database
+// create filtered user url database
 const urlsForUser = id => {
   let userDatabase = {};
   for (let url in urlDatabase) {
+    // if user id matches database id, return associated urls
     if (urlDatabase[url].userID === id) {
       userDatabase[url] = urlDatabase[url].longURL;
     }
@@ -81,8 +82,12 @@ const urlsForUser = id => {
 };
 
 app.get('/', (req, res) => {
-  res.send('Hello!');
-  // res.redirect('/login');
+  // res.send('Hello!');
+  if (req.session.userId) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/register', (req, res) => {
@@ -93,7 +98,7 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  // create user ID & store user info
+  // create & store user info
   // conditionals if user exists or empty strings entered
   if (req.body.email === "" || req.body.password === "" || verifyEmail(req.body.email, users) === true) {
     res.send(res.statusCode = 400);
@@ -106,7 +111,7 @@ app.post('/register', (req, res) => {
       password: hashPassword
       // password: req.body.password
     };
-    req.session.userId = users[userId];
+    req.session.userId = userId;
   }
   res.redirect('/urls');
 });
@@ -119,9 +124,10 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  // return user from database
   const user = getUserByEmail(req.body.email, users);
-  if (bcrypt.compareSync(req.body.password, user.password) === false) {
-  // if (!verifyPassword(req.body.email, req.body.password)) {
+  // verify password and direct accordingly
+  if (!bcrypt.compareSync(req.body.password, user.password)) {
     res.status(403).send('Forbidden');
   } else {
     req.session.userId = user.id;
@@ -137,11 +143,12 @@ app.get('/urls', (req, res) => {
   if (req.session.userId) {
     const templateVars = {
       // display url database if user is logged in (verified with presence of cookies)
-      urls: urlsForUser(req.session.userId.id),
+      urls: urlsForUser(req.session.userId),
       userId: req.session["userId"]
     };
     res.render('urls_index', templateVars);
   } else {
+    // made a decision that a redirect to the login page is functionally more useful than an expected error message to the user to log in
     res.redirect('/login');
   }
 });
@@ -150,11 +157,14 @@ app.post('/urls', (req, res) => {
   // generate key value pair for user input longURL
   urlDatabase[generateRandomString()] = {
     longURL: req.body.longURL,
-    userID: req.session.userId.id
+    userID: req.session.userId
   };
+  console.log(urlDatabase);
+  console.log(req.session);
   res.redirect('/urls');
 });
 
+// redirects to form to create url if logged in
 app.get('/urls/new', (req, res) => {
   if (req.session.userId) {
     const templateVars = {
@@ -167,31 +177,62 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
+// redirect to long URL if accessing short URL
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+// display short URL with ability to update (if logged in)
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     userId: req.session["userId"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  res.render('urls_show', templateVars);
+  
+  // if (urlDatabase[req.params.shortURL] && req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
+  //   res.render('urls_show', templateVars);
+  // } else if (req.cookies.userId) {
+  //   res.status(403).send('You are not authorized to view this page');
+  // } else {
+  //   res.status(401).send('Please log in to view this page');
+  // }
+  console.log(req.params.shortURL);
+  console.log("User ID from cookie", req.session.userId);
+  console.log("from Database", urlDatabase[req.params.shortURL].userID);
+  if (req.params.shortURL) {
+    if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
+      res.render('urls_show', templateVars);
+    } else {
+      res.status(403).send('You are not authorized to view this page');
+    }
+  } else {
+    res.status(404).send('Page not found');
+  }
 });
 
+// update existing URL with new address in a user's URLs
 app.post('/urls/:shortURL/update', (req, res) => {
-  if (req.session.userId.id === urlDatabase[req.params.shortURL].userID) {
-    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
-    res.redirect('/urls');
+  if (req.params.shortURL) {
+    if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
+      urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+      res.redirect('/urls');
+    } else {
+      res.status(401).send('You are not authorized to view this page');
+    }
   } else {
-    res.status(403).send('Forbidden');
+    res.status(404).send('Page not found');
   }
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (urlDatabase[req.params.shortURL] && req.cookies.userId === urlDatabase[req.params.shortURL].userID) {
+  // delete url record if user ID matches associated ID on url
+  if (!urlDatabase[req.params.shortURL]) { 
+    return res.status(404).send('Page not found');
+  }
+
+  if (req.session.userId === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
   } else {
@@ -201,9 +242,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/logout', (req, res) => {
   // clear cookies upon logging out
-  // res.clearCookie('userId');
   req.session = null;
-  res.redirect('/login');
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {

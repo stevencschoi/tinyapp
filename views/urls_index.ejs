@@ -15,16 +15,24 @@
       cursor: pointer;
     }
 
+    button:hover {
+      font-weight:700;
+    }
+
     .log:hover {
-      border: 1px solid white;
       color: white
+      border: 1px solid white;
     }
 
-    .delete:hover {
-      border: 1px solid red;
+    .edit {
+      color:blue;
+      border: 1px solid #007BFF;
+    }
+
+    .delete {
       color: red;
+      border: 1px solid red;
     }
-
     </style>
 </head>
 <body>
@@ -50,7 +58,9 @@
               <form 
                 method="GET"
                 action="/urls/<%= url %>">
-                <a href="/urls/<%= url %>">Edit</a>
+                <button class="edit button">
+                  <a href="/urls/<%= url %>">Edit</a>
+                </button>
               </form>
             </td>
             <td>
