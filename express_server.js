@@ -248,6 +248,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/logout', (req, res) => {
   // clear cookies upon logging out
   req.session = null;
+  // redirects to urls which redirects to login...
   res.redirect('/urls');
 });
 
