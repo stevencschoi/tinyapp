@@ -102,8 +102,10 @@ app.get('/register', (req, res) => {
 app.post('/register', (req, res) => {
   // create & store user info
   // conditionals if user exists or empty strings entered
-  if (req.body.email === "" || req.body.password === "" || verifyEmail(req.body.email, users) === true) {
+  if (req.body.email === "" || req.body.password === "") {
     res.status(400).send('Bad request');
+  } else if (verifyEmail(req.body.email, users)) {
+    res.status(401).send('This account already exists');
   } else {
     // create user object and add to database
     const userId = generateRandomString();
