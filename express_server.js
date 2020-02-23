@@ -73,7 +73,12 @@ app.get('/register', (req, res) => {
     email: req.body.email,
     userId: req.session.userId
   };
-  res.render('register', templateVars);
+
+  if (req.session.userId) {
+    res.redirect('/urls');
+  } else {
+    res.render('register', templateVars);
+  }
 });
 
 app.post('/register', (req, res) => {
@@ -105,7 +110,12 @@ app.get('/login', (req, res) => {
     userId: req.session["userId"],
     user: users[req.session.userId],
   };
-  res.render('login', templateVars);
+
+  if (req.session.userId) {
+    res.redirect('/urls');
+  } else {
+    res.render('login', templateVars);
+  }
 });
 
 app.post('/login', (req, res) => {
