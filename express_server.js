@@ -59,8 +59,10 @@ const urlsForUser = id => {
 };
 
 app.get('/', (req, res) => {
+  // if user is logged in, redirect to url page
   if (req.session.userId) {
     res.redirect('/urls');
+  // if not logged in, login page
   } else {
     res.redirect('/login');
   }
@@ -73,9 +75,11 @@ app.get('/register', (req, res) => {
     userId: req.session.userId
   };
 
+  // if user is logged in, redirect to url page
   if (req.session.userId) {
     res.redirect('/urls');
   } else {
+    // if not logged in, login page
     res.render('register', templateVars);
   }
 });
@@ -128,6 +132,7 @@ app.post('/login', (req, res) => {
   if (!bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send('Forbidden');
   } else {
+    // attach existing account to session
     req.session.userId = user.id;
     res.redirect('/urls');
   }
@@ -139,9 +144,10 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/urls', (req, res) => {
   if (req.session.userId) {
+    // display url database if user logged in (verified if cookies exist)
     const templateVars = {
-      // display url database if user is logged in (verified with presence of cookies)
       user: users[req.session.userId],
+      // urlsForUser generates the short URL as the key and long URL as the value assigned to the userId object in the url database
       urls: urlsForUser(req.session.userId),
       userId: req.session["userId"]
     };
