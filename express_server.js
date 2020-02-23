@@ -59,7 +59,6 @@ const urlsForUser = id => {
 };
 
 app.get('/', (req, res) => {
-  // res.send('Hello!');
   if (req.session.userId) {
     res.redirect('/urls');
   } else {
